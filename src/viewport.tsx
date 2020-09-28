@@ -5,9 +5,9 @@ import React, {
   useRef,
   useEffect
 } from 'react'
-import { BREAKPOINTS } from './utils'
-import lodashThrottle from 'lodash/throttle'
 import { DebouncedFunc } from 'lodash'
+import lodashThrottle from 'lodash/throttle'
+import { BREAKPOINTS } from './utils'
 
 interface Props {
   children: ReactNode
@@ -61,6 +61,7 @@ export function ViewportProvider({ throttle = 100, children }: Props) {
     if (isBrowser) {
       window.removeEventListener('resize', throttleHandler.current)
     }
+
     throttleHandler.current.cancel()
   }, [updateWindowSize])
 
@@ -90,9 +91,12 @@ export function useViewport() {
       if (max === '') max = -1
 
       // Convert breakpoints into numbers
-      if (typeof min === 'string') min = BREAKPOINTS[min]
-      if (typeof max === 'string') max = BREAKPOINTS[max]
-
+      if (typeof min === 'string') {
+        min = BREAKPOINTS[min]
+      }
+      if (typeof max === 'string') {
+        max = BREAKPOINTS[max]
+      }
       if (typeof min !== 'number') {
         throw new Error(`Viewport: invalid minimum value (${min}).`)
       }
