@@ -26,11 +26,6 @@
       "pre-commit": "yarn lint"
     }
   },
-  "prettier": {
-    "semi": false,
-    "singleQuote": true,
-    "trailingComma": "es5"
-  },
   "module": "dist/use-wallet.esm.js",
   "size-limit": [
     {
