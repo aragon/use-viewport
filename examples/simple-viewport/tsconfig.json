@@ -16,7 +16,6 @@
     "types": ["node"],
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "importHelpers": true,
     "forceConsistentCasingInFileNames": true
   }
 }
