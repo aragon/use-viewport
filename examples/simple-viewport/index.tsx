@@ -1,11 +1,29 @@
 import 'react-app-polyfill/ie11'
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import { ViewportProvider, useViewport } from 'use-viewport'
 
 function App() {
-  const { width, height, within, below, above } = useViewport()
+  const [throttleAmount, setThrottleAmount] = useState(100)
 
+  return (
+    <ViewportProvider throttle={throttleAmount}>
+      <div>
+        <Content />
+        <label style={{ marginTop: '20px' }}>
+          Throttle{' '}
+          <input
+            value={throttleAmount}
+            onChange={event => setThrottleAmount(Number(event.target.value))}
+          />
+        </label>
+      </div>
+    </ViewportProvider>
+  )
+}
+
+function Content() {
+  const { width, height, within, below, above } = useViewport()
   return (
     <div>
       {below('medium') && <div>small</div>}
@@ -19,7 +37,7 @@ function App() {
 }
 
 ReactDOM.render(
-  <ViewportProvider>
+  <>
     <App />
     <style>
       {`
@@ -39,6 +57,6 @@ ReactDOM.render(
         }
       `}
     </style>
-  </ViewportProvider>,
+  </>,
   document.getElementById('root')
 )

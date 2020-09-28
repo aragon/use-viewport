@@ -1,130 +1,117 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React, {
+  ReactNode,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+} from 'react'
 import { BREAKPOINTS } from './utils'
-import throttle from 'lodash/throttle'
+import lodashThrottle from 'lodash/throttle'
+import { DebouncedFunc } from 'lodash'
 
-const NO_DOM_WINDOW_SIZE = { width: 0, height: 0 }
-
-const WINDOW_SIZE_BASE = { breakpoints: BREAKPOINTS, ...getCurrentWindowSize() }
-
-const ViewportContext = React.createContext(WINDOW_SIZE_BASE)
-
-function getCurrentWindowSize() {
-  return typeof window === 'undefined'
-    ? NO_DOM_WINDOW_SIZE
-    : { width: window.innerWidth, height: window.innerHeight }
+interface Props {
+  children: ReactNode
+  throttle?: number
 }
 
-export class ViewportProvider extends React.Component<{ throttle: any }> {
-  static propTypes = {
-    children: PropTypes.node,
-    throttle: PropTypes.number,
-  }
+const HEADLESS_VIEWPORT_SIZE = { width: 0, height: 0 }
+const VIEWPORT_SIZE_BASE = {
+  breakpoints: BREAKPOINTS,
+  ...getCurrentWindowSize(),
+}
 
-  static defaultProps = {
-    throttle: 100,
-  }
+const isBrowser = typeof window !== 'undefined'
 
-  state = { windowSize: this.getWindowSize() }
+const ViewportContext = React.createContext(VIEWPORT_SIZE_BASE)
 
-  componentDidMount() {
-    this.resizeStart()
-  }
+function getCurrentWindowSize() {
+  return isBrowser
+    ? { width: window.innerWidth, height: window.innerHeight }
+    : HEADLESS_VIEWPORT_SIZE
+}
 
-  componentWillUnmount() {
-    this.resizeStop()
-  }
+export function ViewportProvider({ throttle = 100, children }: Props) {
+  const [viewportSize, setViewportSize] = useState(VIEWPORT_SIZE_BASE)
+  const throttleHandler = useRef<DebouncedFunc<() => void>>()
 
-  componentDidUpdate(prevProps: any) {
-    const { throttle } = this.props
-    if (prevProps.throttle !== throttle) {
-      this.resizeStop()
-      this.resizeStart()
+  const updateWindowSize = useCallback(() => {
+    setViewportSize({
+      ...VIEWPORT_SIZE_BASE,
+      ...getCurrentWindowSize(),
+    })
+  }, [])
+
+  const resizeStart = useCallback((): void => {
+    throttleHandler.current = lodashThrottle(updateWindowSize, throttle)
+
+    updateWindowSize()
+
+    if (isBrowser) {
+      window.addEventListener('resize', throttleHandler.current)
     }
-  }
+  }, [throttle, updateWindowSize])
 
-  resizeStart() {
-    // @ts-ignore
-    this._handleResize = throttle(this.updateWindowSize, this.props.throttle)
-    this.updateWindowSize()
-
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      window.addEventListener('resize', this._handleResize)
-    }
-  }
-
-  resizeStop() {
-    // @ts-ignore
-    if (!this._handleResize) {
+  const resizeStop = useCallback((): void => {
+    if (!throttleHandler.current) {
       return
     }
-    if (typeof window !== 'undefined') {
-      // @ts-ignore
-      window.removeEventListener('resize', this._handleResize)
+
+    updateWindowSize()
+
+    if (isBrowser) {
+      window.removeEventListener('resize', throttleHandler.current)
     }
-    // @ts-ignore
-    this._handleResize.cancel()
-    // @ts-ignore
-    delete this._handleResize
-  }
+    throttleHandler.current.cancel()
+  }, [updateWindowSize])
 
-  updateWindowSize = () => {
-    this.setState({ windowSize: this.getWindowSize() })
-  }
+  useEffect(() => {
+    resizeStart()
 
-  getWindowSize() {
-    return {
-      ...WINDOW_SIZE_BASE,
-      ...getCurrentWindowSize(),
+    return () => {
+      resizeStop()
     }
-  }
+  }, [resizeStart, resizeStop])
 
-  // Check if the current width is between two points.
-  // Accepts a breakpoint string ('small', 'large') or numbers (width in pixels).
-  // `min` is inclusive and `max` is exclusive.
-  within = (min: string | number, max: string | number) => {
-    const { width } = this.state.windowSize
-
-    // Accept "" or -1 indifferently
-    if (min === '') min = -1
-    if (max === '') max = -1
-
-    // Convert breakpoints into numbers
-    // @ts-ignore
-    if (typeof min === 'string') min = BREAKPOINTS[min]
-    // @ts-ignore
-    if (typeof max === 'string') max = BREAKPOINTS[max]
-
-    if (typeof min !== 'number') {
-      throw new Error(`Viewport: invalid minimum value (${min}).`)
-    }
-    if (typeof max !== 'number') {
-      throw new Error(`Viewport: invalid maximum value (${max}).`)
-    }
-
-    return (min === -1 || width >= min) && (max === -1 || width < max)
-  }
-
-  above = (value: string | number) => this.within(value, -1)
-  below = (value: string | number) => this.within(-1, value)
-
-  render() {
-    const { windowSize } = this.state
-    const { children } = this.props
-    const { within, above, below } = this
-    console.log(this)
-    return (
-      <ViewportContext.Provider
-        // @ts-ignore
-        value={{ ...windowSize, within, above, below, this: this }}
-      >
-        {children}
-      </ViewportContext.Provider>
-    )
-  }
+  return (
+    <ViewportContext.Provider value={viewportSize}>
+      {children}
+    </ViewportContext.Provider>
+  )
 }
 
 export function useViewport() {
-  return React.useContext(ViewportContext)
+  const viewportSize = React.useContext(ViewportContext)
+  const { width } = viewportSize
+
+  const within = useCallback(
+    (min: string | number, max: string | number) => {
+      // Accept "" or -1 indifferently
+      if (min === '') min = -1
+      if (max === '') max = -1
+
+      // Convert breakpoints into numbers
+      if (typeof min === 'string') min = BREAKPOINTS[min]
+      if (typeof max === 'string') max = BREAKPOINTS[max]
+
+      if (typeof min !== 'number') {
+        throw new Error(`Viewport: invalid minimum value (${min}).`)
+      }
+      if (typeof max !== 'number') {
+        throw new Error(`Viewport: invalid maximum value (${max}).`)
+      }
+
+      return (min === -1 || width >= min) && (max === -1 || width < max)
+    },
+    [width]
+  )
+
+  const above = useCallback((value: string | number) => within(value, -1), [
+    within,
+  ])
+
+  const below = useCallback((value: string | number) => within(-1, value), [
+    within,
+  ])
+
+  return { ...viewportSize, within, above, below }
 }
