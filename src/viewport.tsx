@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { BREAKPOINTS } from './utils'
-import throttle from 'lodash.throttle'
+import throttle from 'lodash/throttle'
 
 const NO_DOM_WINDOW_SIZE = { width: 0, height: 0 }
 
@@ -15,7 +15,7 @@ function getCurrentWindowSize() {
     : { width: window.innerWidth, height: window.innerHeight }
 }
 
-export class ViewportProvider extends React.Component {
+export class ViewportProvider extends React.Component<{ throttle: any }> {
   static propTypes = {
     children: PropTypes.node,
     throttle: PropTypes.number,
@@ -35,7 +35,7 @@ export class ViewportProvider extends React.Component {
     this.resizeStop()
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: any) {
     const { throttle } = this.props
     if (prevProps.throttle !== throttle) {
       this.resizeStop()
@@ -44,22 +44,28 @@ export class ViewportProvider extends React.Component {
   }
 
   resizeStart() {
+    // @ts-ignore
     this._handleResize = throttle(this.updateWindowSize, this.props.throttle)
     this.updateWindowSize()
 
     if (typeof window !== 'undefined') {
+      // @ts-ignore
       window.addEventListener('resize', this._handleResize)
     }
   }
 
   resizeStop() {
+    // @ts-ignore
     if (!this._handleResize) {
       return
     }
     if (typeof window !== 'undefined') {
+      // @ts-ignore
       window.removeEventListener('resize', this._handleResize)
     }
+    // @ts-ignore
     this._handleResize.cancel()
+    // @ts-ignore
     delete this._handleResize
   }
 
@@ -77,7 +83,7 @@ export class ViewportProvider extends React.Component {
   // Check if the current width is between two points.
   // Accepts a breakpoint string ('small', 'large') or numbers (width in pixels).
   // `min` is inclusive and `max` is exclusive.
-  within = (min, max) => {
+  within = (min: string | number, max: string | number) => {
     const { width } = this.state.windowSize
 
     // Accept "" or -1 indifferently
@@ -85,7 +91,9 @@ export class ViewportProvider extends React.Component {
     if (max === '') max = -1
 
     // Convert breakpoints into numbers
+    // @ts-ignore
     if (typeof min === 'string') min = BREAKPOINTS[min]
+    // @ts-ignore
     if (typeof max === 'string') max = BREAKPOINTS[max]
 
     if (typeof min !== 'number') {
@@ -98,19 +106,25 @@ export class ViewportProvider extends React.Component {
     return (min === -1 || width >= min) && (max === -1 || width < max)
   }
 
-  above = value => this.within(value, -1)
-  below = value => this.within(-1, value)
+  above = (value: string | number) => this.within(value, -1)
+  below = (value: string | number) => this.within(-1, value)
 
   render() {
     const { windowSize } = this.state
     const { children } = this.props
     const { within, above, below } = this
+    console.log(this)
     return (
-      <ViewportContext.Provider value={{ ...windowSize, within, above, below }}>
+      <ViewportContext.Provider
+        // @ts-ignore
+        value={{ ...windowSize, within, above, below, this: this }}
+      >
         {children}
       </ViewportContext.Provider>
     )
   }
 }
 
-export const useViewport = () => React.useContext(ViewportContext)
+export function useViewport() {
+  return React.useContext(ViewportContext)
+}
