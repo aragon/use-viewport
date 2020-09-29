@@ -1,4 +1,3 @@
-import 'react-app-polyfill/ie11'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import { ViewportProvider, useViewport } from 'use-viewport'
@@ -11,7 +10,7 @@ function App() {
       <div>
         <Content />
         <label style={{ marginTop: '20px' }}>
-          Throttle{' '}
+          Throttle(ms){' '}
           <input
             value={throttleAmount}
             onChange={event => setThrottleAmount(Number(event.target.value))}
