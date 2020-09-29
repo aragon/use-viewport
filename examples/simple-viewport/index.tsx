@@ -4,11 +4,17 @@ import { ViewportProvider, useViewport } from 'use-viewport'
 
 function App() {
   const [throttleAmount, setThrottleAmount] = useState(100)
+  const [mounted, setMounted] = useState(true)
 
   return (
-    <ViewportProvider throttle={throttleAmount}>
+    <>
       <div>
-        <Content />
+        {mounted && (
+          <ViewportProvider throttle={throttleAmount}>
+            <Content />
+          </ViewportProvider>
+        )}
+
         <label style={{ marginTop: '20px' }}>
           Throttle(ms){' '}
           <input
@@ -16,8 +22,12 @@ function App() {
             onChange={event => setThrottleAmount(Number(event.target.value))}
           />
         </label>
+        <br />
+        <button onClick={() => setMounted(!mounted)}>
+          {mounted ? 'Unmount' : 'Mount'} provider
+        </button>
       </div>
-    </ViewportProvider>
+    </>
   )
 }
 
