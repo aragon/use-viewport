@@ -3,7 +3,7 @@ import React, {
   useState,
   useCallback,
   useRef,
-  useEffect
+  useEffect,
 } from 'react'
 import { DebouncedFunc } from 'lodash'
 import lodashThrottle from 'lodash/throttle'
@@ -17,7 +17,7 @@ interface Props {
 const HEADLESS_VIEWPORT_SIZE = { width: 0, height: 0 }
 const VIEWPORT_SIZE_BASE = {
   breakpoints: BREAKPOINTS,
-  ...getCurrentWindowSize()
+  ...getCurrentWindowSize(),
 }
 
 const isBrowser = typeof window !== 'undefined'
@@ -37,7 +37,7 @@ export function ViewportProvider({ throttle = 100, children }: Props) {
   const updateWindowSize = useCallback(() => {
     setViewportSize({
       ...VIEWPORT_SIZE_BASE,
-      ...getCurrentWindowSize()
+      ...getCurrentWindowSize(),
     })
   }, [])
 
@@ -108,11 +108,11 @@ export function useViewport() {
   )
 
   const above = useCallback((value: string | number) => within(value, -1), [
-    within
+    within,
   ])
 
   const below = useCallback((value: string | number) => within(-1, value), [
-    within
+    within,
   ])
 
   return { ...viewportSize, within, above, below }

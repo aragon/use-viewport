@@ -4,7 +4,7 @@ const { useViewport } = require('use-viewport')
 
 console.log(
   ReactDOMServer.renderToStaticMarkup(
-    React.createElement(function() {
+    React.createElement(function () {
       const viewport = useViewport()
       return React.createElement(
         'p',

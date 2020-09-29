@@ -19,7 +19,7 @@ function App() {
           Throttle(ms){' '}
           <input
             value={throttleAmount}
-            onChange={event => setThrottleAmount(Number(event.target.value))}
+            onChange={(event) => setThrottleAmount(Number(event.target.value))}
           />
         </label>
         <br />

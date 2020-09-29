@@ -62,6 +62,6 @@ It takes no parameters and returns the following:
 - `width`: The current screen width.
 - `height`: The current screen height.
 - `within(min, max)`: A function that returns `true` if the viewport width is between `min` and `max`. `min` and `max` can be any number, or one of the available breakpoints. If -1 is passed as min or max, there will be no minimum or maximum.
-- `above(x)`: Returns `true` if the viewport width is above `x`, `false` otherwise. 
-- `below(x)`: Returns `true` if the viewport width is below `x`, `false` otherwise. 
-- `breakpoints`: An object that contains the number values of the different recommended breakpoints. It can be useful to set these values in CSS, for example. 
+- `above(x)`: Returns `true` if the viewport width is above `x`, `false` otherwise.
+- `below(x)`: Returns `true` if the viewport width is below `x`, `false` otherwise.
+- `breakpoints`: An object that contains the number values of the different recommended breakpoints. It can be useful to set these values in CSS, for example.
