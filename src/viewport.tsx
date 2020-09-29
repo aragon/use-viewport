@@ -41,7 +41,7 @@ export function ViewportProvider({ throttle = 100, children }: Props) {
     })
   }, [])
 
-  const resizeStart = useCallback((): void => {
+  const resizeStart = useCallback(() => {
     throttleHandler.current = lodashThrottle(updateWindowSize, throttle)
 
     updateWindowSize()
@@ -51,7 +51,7 @@ export function ViewportProvider({ throttle = 100, children }: Props) {
     }
   }, [throttle, updateWindowSize])
 
-  const resizeStop = useCallback((): void => {
+  const resizeStop = useCallback(() => {
     if (!throttleHandler.current) {
       return
     }
