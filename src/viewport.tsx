@@ -56,14 +56,12 @@ export function ViewportProvider({ throttle = 100, children }: Props) {
       return
     }
 
-    updateWindowSize()
-
     if (isBrowser) {
       window.removeEventListener('resize', throttleHandler.current)
     }
 
     throttleHandler.current.cancel()
-  }, [updateWindowSize])
+  }, [])
 
   useEffect(() => {
     resizeStart()
