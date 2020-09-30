@@ -9,7 +9,7 @@ import { DebouncedFunc } from 'lodash'
 import lodashThrottle from 'lodash/throttle'
 import { BREAKPOINTS } from './utils'
 
-interface Props {
+type ProviderProps = {
   children: ReactNode
   throttle?: number
 }
@@ -30,7 +30,7 @@ function getCurrentWindowSize() {
     : HEADLESS_VIEWPORT_SIZE
 }
 
-export function ViewportProvider({ throttle = 100, children }: Props) {
+export function ViewportProvider({ throttle = 100, children }: ProviderProps) {
   const [viewportSize, setViewportSize] = useState(VIEWPORT_SIZE_BASE)
   const throttleHandler = useRef<DebouncedFunc<() => void>>()
 

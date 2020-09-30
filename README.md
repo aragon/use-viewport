@@ -53,6 +53,12 @@ export default App
 
 This is the provider component. It should be placed above any component using `useViewport()`.
 
+Apart from `children` it accepts the following props:
+
+##### throttle
+
+The interval in ms for window updates. Defaults to `100`.
+
 ### useViewport()
 
 This is the hook to be used throughout the app.
