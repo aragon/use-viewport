@@ -20,6 +20,21 @@ describe('withinRange() ', () => {
     ).toBeTruthy()
     expect(withinBreakpointRange(200, 600, mockViewportWidth)).toBeTruthy()
   })
+
+  it('returns correctly when passed empty string', () => {
+    expect(withinBreakpointRange('small', '', mockViewportWidth)).toBeTruthy()
+    expect(withinBreakpointRange('', 'small', mockViewportWidth)).toBeFalsy()
+  })
+
+  it('throws when passing an undefined breakpoint name', () => {
+    expect(() => {
+      withinBreakpointRange('muffins', '', mockViewportWidth)
+    }).toThrowError()
+
+    expect(() => {
+      withinBreakpointRange('', 'muffins', mockViewportWidth)
+    }).toThrowError()
+  })
 })
 
 describe('aboveValue() ', () => {
@@ -28,6 +43,7 @@ describe('aboveValue() ', () => {
       aboveBreakpoint(mockViewportWidth + 1, mockViewportWidth)
     ).toBeFalsy()
   })
+
   it('returns truthy when viewport is larger than breakpoint', () => {
     expect(
       aboveBreakpoint(mockViewportWidth - 1, mockViewportWidth)
@@ -41,6 +57,7 @@ describe('belowValue() ', () => {
       belowBreakpoint(mockViewportWidth - 1, mockViewportWidth)
     ).toBeFalsy()
   })
+
   it('returns truthy when viewport is smaller than breakpoint', () => {
     expect(
       belowBreakpoint(mockViewportWidth + 1, mockViewportWidth)
