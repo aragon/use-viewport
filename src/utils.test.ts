@@ -6,7 +6,7 @@ import {
 
 const mockViewportWidth = 500
 
-describe('withinRange() ', () => {
+describe('withinBreakpointRange() ', () => {
   it('returns falsy when viewport is not in the breakpoint range', () => {
     expect(
       withinBreakpointRange('medium', 'large', mockViewportWidth)
@@ -37,7 +37,7 @@ describe('withinRange() ', () => {
   })
 })
 
-describe('aboveValue() ', () => {
+describe('aboveBreakpoint() ', () => {
   it('returns falsy when viewport is smaller than breakpoint', () => {
     expect(
       aboveBreakpoint(mockViewportWidth + 1, mockViewportWidth)
@@ -51,7 +51,7 @@ describe('aboveValue() ', () => {
   })
 })
 
-describe('belowValue() ', () => {
+describe('belowBreakpoint() ', () => {
   it('returns falsy when viewport is larger than breakpoint', () => {
     expect(
       belowBreakpoint(mockViewportWidth - 1, mockViewportWidth)
