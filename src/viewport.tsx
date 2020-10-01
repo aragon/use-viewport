@@ -9,6 +9,12 @@ import { DebouncedFunc } from 'lodash'
 import lodashThrottle from 'lodash/throttle'
 import { BREAKPOINTS } from './utils'
 
+import {
+  withinBreakpointRange,
+  aboveBreakpoint,
+  belowBreakpoint,
+} from './utils'
+
 type ProviderProps = {
   children: ReactNode
   throttle?: number
@@ -30,7 +36,10 @@ function getCurrentWindowSize() {
     : HEADLESS_VIEWPORT_SIZE
 }
 
-export function ViewportProvider({ throttle = 100, children }: ProviderProps) {
+export function ViewportProvider({
+  throttle = 100,
+  children,
+}: ProviderProps): JSX.Element {
   const [viewportSize, setViewportSize] = useState(VIEWPORT_SIZE_BASE)
   const throttleHandler = useRef<DebouncedFunc<() => void>>()
 
@@ -78,42 +87,31 @@ export function ViewportProvider({ throttle = 100, children }: ProviderProps) {
   )
 }
 
-export function useViewport() {
+type ViewportAttributes = typeof VIEWPORT_SIZE_BASE & {
+  within: (min: string | number, max: string | number) => boolean
+  above: (value: string | number) => boolean
+  below: (value: string | number) => boolean
+}
+
+export function useViewport(): ViewportAttributes {
   const viewportSize = React.useContext(ViewportContext)
   const { width } = viewportSize
 
   const within = useCallback(
-    (min: string | number, max: string | number) => {
-      // Accept "" or -1 indifferently
-      if (min === '') min = -1
-      if (max === '') max = -1
-
-      // Convert breakpoints into numbers
-      if (typeof min === 'string') {
-        min = BREAKPOINTS[min]
-      }
-      if (typeof max === 'string') {
-        max = BREAKPOINTS[max]
-      }
-      if (typeof min !== 'number') {
-        throw new Error(`Viewport: invalid minimum value (${min}).`)
-      }
-      if (typeof max !== 'number') {
-        throw new Error(`Viewport: invalid maximum value (${max}).`)
-      }
-
-      return (min === -1 || width >= min) && (max === -1 || width < max)
-    },
+    (min: string | number, max: string | number) =>
+      withinBreakpointRange(min, max, width),
     [width]
   )
 
-  const above = useCallback((value: string | number) => within(value, -1), [
-    within,
-  ])
+  const above = useCallback(
+    (value: string | number) => aboveBreakpoint(value, width),
+    [width]
+  )
 
-  const below = useCallback((value: string | number) => within(-1, value), [
-    within,
-  ])
+  const below = useCallback(
+    (value: string | number) => belowBreakpoint(value, width),
+    [width]
+  )
 
   return { ...viewportSize, within, above, below }
 }

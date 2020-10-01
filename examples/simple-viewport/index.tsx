@@ -33,6 +33,7 @@ function App() {
 
 function Content() {
   const { width, height, within, below, above } = useViewport()
+
   return (
     <div>
       {below('medium') && <div>small</div>}
