@@ -16,7 +16,7 @@
   "scripts": {
     "start": "tsdx watch --transpileOnly",
     "build": "tsdx build",
-    "test": "tsdx test --passWithNoTests",
+    "test": "tsdx test",
     "lint": "tsdx lint src --max-warnings 0 && tsc",
     "prepare": "tsdx build",
     "prepublishOnly": "git push && git push --tags",
