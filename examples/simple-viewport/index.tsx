@@ -1,9 +1,37 @@
-import 'babel-polyfill'
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import { ViewportProvider, useViewport } from 'use-viewport'
 
 function App() {
+  const [throttleAmount, setThrottleAmount] = useState(100)
+  const [mounted, setMounted] = useState(true)
+
+  return (
+    <>
+      <div>
+        {mounted && (
+          <ViewportProvider throttle={throttleAmount}>
+            <Content />
+          </ViewportProvider>
+        )}
+
+        <label style={{ marginTop: '20px' }}>
+          Throttle(ms){' '}
+          <input
+            value={throttleAmount}
+            onChange={(event) => setThrottleAmount(Number(event.target.value))}
+          />
+        </label>
+        <br />
+        <button onClick={() => setMounted(!mounted)}>
+          {mounted ? 'Unmount' : 'Mount'} provider
+        </button>
+      </div>
+    </>
+  )
+}
+
+function Content() {
   const { width, height, within, below, above } = useViewport()
 
   return (
@@ -19,7 +47,7 @@ function App() {
 }
 
 ReactDOM.render(
-  <ViewportProvider>
+  <>
     <App />
     <style>
       {`
@@ -39,6 +67,6 @@ ReactDOM.render(
         }
       `}
     </style>
-  </ViewportProvider>,
-  document.querySelector('#app')
+  </>,
+  document.getElementById('root')
 )
