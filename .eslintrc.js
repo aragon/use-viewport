@@ -18,7 +18,4 @@ module.exports = {
       version: '16.13',
     },
   },
-  rules: {
-    '@typescript-eslint/no-non-null-assertion': 'off',
-  },
 }
