@@ -7,7 +7,7 @@ import React, {
 } from 'react'
 import { DebouncedFunc } from 'lodash'
 import lodashThrottle from 'lodash/throttle'
-import { BREAKPOINTS } from './utils'
+import { Breakpoints, DEFAULT_BREAKPOINTS } from './utils'
 
 import {
   withinBreakpointRange,
@@ -17,18 +17,20 @@ import {
 
 type ProviderProps = {
   children: ReactNode
+  breakpoints?: Breakpoints
   throttle?: number
 }
 
-const HEADLESS_VIEWPORT_SIZE = { width: 0, height: 0 }
-const VIEWPORT_SIZE_BASE = {
-  breakpoints: BREAKPOINTS,
-  ...getCurrentWindowSize(),
+type ViewportContextState = {
+  width: number
+  height: number
+  breakpoints: Breakpoints
 }
 
-const isBrowser = typeof window !== 'undefined'
+const HEADLESS_VIEWPORT_SIZE = { width: 0, height: 0 }
 
-const ViewportContext = React.createContext(VIEWPORT_SIZE_BASE)
+const isBrowser = typeof window !== 'undefined'
+const ViewportContext = React.createContext<ViewportContextState | null>(null)
 
 function getCurrentWindowSize() {
   return isBrowser
@@ -38,27 +40,22 @@ function getCurrentWindowSize() {
 
 export function ViewportProvider({
   throttle = 100,
+  breakpoints = DEFAULT_BREAKPOINTS,
   children,
 }: ProviderProps): JSX.Element {
-  const [viewportSize, setViewportSize] = useState(VIEWPORT_SIZE_BASE)
+  const [viewportSize, setViewportSize] = useState({
+    breakpoints,
+    ...getCurrentWindowSize(),
+  })
+
   const throttleHandler = useRef<DebouncedFunc<() => void>>()
 
   const updateWindowSize = useCallback(() => {
     setViewportSize({
-      ...VIEWPORT_SIZE_BASE,
+      breakpoints,
       ...getCurrentWindowSize(),
     })
-  }, [])
-
-  const resizeStart = useCallback(() => {
-    throttleHandler.current = lodashThrottle(updateWindowSize, throttle)
-
-    updateWindowSize()
-
-    if (isBrowser) {
-      window.addEventListener('resize', throttleHandler.current)
-    }
-  }, [throttle, updateWindowSize])
+  }, [breakpoints])
 
   const resizeStop = useCallback(() => {
     if (!throttleHandler.current) {
@@ -72,7 +69,19 @@ export function ViewportProvider({
     throttleHandler.current.cancel()
   }, [])
 
+  const resizeStart = useCallback(() => {
+    throttleHandler.current = lodashThrottle(updateWindowSize, throttle)
+
+    updateWindowSize()
+
+    if (isBrowser) {
+      window.addEventListener('resize', throttleHandler.current)
+    }
+  }, [throttle, updateWindowSize])
+
   useEffect(() => {
+    // As the breakpoints may change it's important to call resizeStop() here to unbind previous handlers
+    resizeStop()
     resizeStart()
 
     return () => {
@@ -87,31 +96,32 @@ export function ViewportProvider({
   )
 }
 
-type ViewportAttributes = typeof VIEWPORT_SIZE_BASE & {
+type ViewportAttributes = ViewportContextState & {
   within: (min: string | number, max: string | number) => boolean
   above: (value: string | number) => boolean
   below: (value: string | number) => boolean
 }
 
 export function useViewport(): ViewportAttributes {
-  const viewportSize = React.useContext(ViewportContext)
-  const { width } = viewportSize
+  const { width, height, breakpoints } = React.useContext(
+    ViewportContext
+  ) as ViewportContextState
 
   const within = useCallback(
     (min: string | number, max: string | number) =>
-      withinBreakpointRange(min, max, width),
-    [width]
+      withinBreakpointRange(min, max, width, breakpoints),
+    [width, breakpoints]
   )
 
   const above = useCallback(
-    (value: string | number) => aboveBreakpoint(value, width),
-    [width]
+    (value: string | number) => aboveBreakpoint(value, width, breakpoints),
+    [width, breakpoints]
   )
 
   const below = useCallback(
-    (value: string | number) => belowBreakpoint(value, width),
-    [width]
+    (value: string | number) => belowBreakpoint(value, width, breakpoints),
+    [width, breakpoints]
   )
 
-  return { ...viewportSize, within, above, below }
+  return { width, height, breakpoints, within, above, below }
 }
