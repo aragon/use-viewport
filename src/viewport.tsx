@@ -50,12 +50,16 @@ export function ViewportProvider({
 
   const throttleHandler = useRef<DebouncedFunc<() => void>>()
 
+  // Avoid excessive re-renders if non-memoized object literal is provided via breakpoints prop
+  const breakpointsAsValue = JSON.stringify(breakpoints)
+
   const updateWindowSize = useCallback(() => {
     setViewportSize({
       breakpoints,
       ...getCurrentWindowSize(),
     })
-  }, [breakpoints])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [breakpointsAsValue])
 
   const resizeStop = useCallback(() => {
     if (!throttleHandler.current) {
@@ -80,8 +84,6 @@ export function ViewportProvider({
   }, [throttle, updateWindowSize])
 
   useEffect(() => {
-    // As the breakpoints may change it's important to call resizeStop() here to unbind previous handlers
-    resizeStop()
     resizeStart()
 
     return () => {
