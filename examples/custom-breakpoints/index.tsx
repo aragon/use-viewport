@@ -17,7 +17,7 @@ function App() {
 }
 
 function Content() {
-  const { width, height, within, below, above } = useViewport()
+  const { width, height, within, below, above, breakpoints } = useViewport()
 
   return (
     <div>
@@ -27,6 +27,13 @@ function Content() {
       <p>
         Current screen width is {width}px and the height is {height}px
       </p>
+      <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+        {Object.keys(breakpoints).map((key) => (
+          <li key={key}>
+            {key}: {breakpoints[key]}px
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
