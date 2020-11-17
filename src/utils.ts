@@ -1,8 +1,10 @@
 // Grid Unit - 8px
 const GU = 8
 
-// These breakpoints values represent minimum screen sizes.
-export const BREAKPOINTS: { [key: string]: number } = {
+export type Breakpoints = Record<string, number>
+
+// These breakpoint values represent minimum screen sizes.
+export const DEFAULT_BREAKPOINTS: Breakpoints = {
   min: 360,
   small: 360,
   medium: 96 * GU,
@@ -12,14 +14,19 @@ export const BREAKPOINTS: { [key: string]: number } = {
 export function withinBreakpointRange(
   min: string | number,
   max: string | number,
-  viewportWidth: number
+  viewportWidth: number,
+  breakpoints: Breakpoints
 ): boolean {
-  const minBreakpoint = BREAKPOINTS[min]
-  const maxBreakpoint = BREAKPOINTS[max]
+  const minBreakpoint = breakpoints[min]
+  const maxBreakpoint = breakpoints[max]
 
   // Accept "" or -1 indifferently
-  if (min === '') min = -1
-  if (max === '') max = -1
+  if (min === '') {
+    min = -1
+  }
+  if (max === '') {
+    max = -1
+  }
 
   // Get the breakpoint unit value if the name is provided
   if (minBreakpoint) {
@@ -42,7 +49,7 @@ export function withinBreakpointRange(
     throw new Error(`Viewport: minimum breakpoint "${min}" doesn't exist.`)
   }
   if (typeof max === 'string' && !maxBreakpoint) {
-    throw new Error(`Viewport: maximum breakpoint "${max}" doesn't exist).`)
+    throw new Error(`Viewport: maximum breakpoint "${max}" doesn't exist.`)
   }
 
   return (
@@ -52,14 +59,16 @@ export function withinBreakpointRange(
 
 export function aboveBreakpoint(
   value: string | number,
-  viewportWidth: number
+  viewportWidth: number,
+  breakpoints: Breakpoints
 ): boolean {
-  return withinBreakpointRange(value, -1, viewportWidth)
+  return withinBreakpointRange(value, -1, viewportWidth, breakpoints)
 }
 
 export function belowBreakpoint(
   value: string | number,
-  viewportWidth: number
+  viewportWidth: number,
+  breakpoints: Breakpoints
 ): boolean {
-  return withinBreakpointRange(-1, value, viewportWidth)
+  return withinBreakpointRange(-1, value, viewportWidth, breakpoints)
 }

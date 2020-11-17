@@ -7,27 +7,25 @@ function App() {
   const [mounted, setMounted] = useState(true)
 
   return (
-    <>
-      <div>
-        {mounted && (
-          <ViewportProvider throttle={throttleAmount}>
-            <Content />
-          </ViewportProvider>
-        )}
+    <div>
+      {mounted && (
+        <ViewportProvider throttle={throttleAmount}>
+          <Content />
+        </ViewportProvider>
+      )}
 
-        <label style={{ marginTop: '20px' }}>
-          Throttle(ms){' '}
-          <input
-            value={throttleAmount}
-            onChange={(event) => setThrottleAmount(Number(event.target.value))}
-          />
-        </label>
-        <br />
-        <button onClick={() => setMounted(!mounted)}>
-          {mounted ? 'Unmount' : 'Mount'} provider
-        </button>
-      </div>
-    </>
+      <label style={{ marginTop: '20px' }}>
+        Throttle(ms){' '}
+        <input
+          value={throttleAmount}
+          onChange={(event) => setThrottleAmount(Number(event.target.value))}
+        />
+      </label>
+      <br />
+      <button onClick={() => setMounted(!mounted)}>
+        {mounted ? 'Unmount' : 'Mount'} provider
+      </button>
+    </div>
   )
 }
 

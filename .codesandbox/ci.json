@@ -1,4 +1,4 @@
 {
   "packages": ["./"],
-  "sandboxes": ["/examples/simple-viewport"]
+  "sandboxes": ["/examples/simple-viewport", "/examples/custom-breakpoints"]
 }
